@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hoidanit.jobhunter.domain.User;
-import com.hoidanit.jobhunter.domain.dto.LoginDTO;
-import com.hoidanit.jobhunter.domain.dto.ResLoginDTO;
-import com.hoidanit.jobhunter.domain.dto.ResLoginDTO.UserLogin;
+import com.hoidanit.jobhunter.domain.response.ResLoginDTO;
+import com.hoidanit.jobhunter.domain.response.ResLoginDTO.UserLogin;
+import com.hoidanit.jobhunter.domain.resquest.ReqLoginDTO;
 import com.hoidanit.jobhunter.service.UserService;
 import com.hoidanit.jobhunter.util.SecurityUtil;
 import com.hoidanit.jobhunter.util.annotation.ApiMessage;
@@ -41,7 +41,7 @@ public class AuthController {
     }
 
     @PostMapping("/auth/login")
-    public ResponseEntity<ResLoginDTO> login(@Valid @RequestBody LoginDTO loginDTO) {
+    public ResponseEntity<ResLoginDTO> login(@Valid @RequestBody ReqLoginDTO loginDTO) {
 
         // Nạp input gồm username/password vào Security
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(

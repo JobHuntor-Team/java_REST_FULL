@@ -1,8 +1,8 @@
-package com.hoidanit.jobhunter.domain.dto;
+package com.hoidanit.jobhunter.domain.resquest;
 
 import jakarta.validation.constraints.NotBlank;
 
-public class LoginDTO {
+public class ReqLoginDTO {
 
     @NotBlank(message = "Username is required")
     private String username;

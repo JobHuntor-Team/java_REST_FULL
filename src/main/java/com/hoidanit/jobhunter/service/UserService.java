@@ -11,11 +11,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import com.hoidanit.jobhunter.domain.User;
-import com.hoidanit.jobhunter.domain.dto.MetaDTO;
-import com.hoidanit.jobhunter.domain.dto.ResUpdateUserDTO;
-import com.hoidanit.jobhunter.domain.dto.ResUserDTO;
-import com.hoidanit.jobhunter.domain.dto.ResultPaginationDTO;
-import com.hoidanit.jobhunter.domain.dto.UserCreateDTO;
+import com.hoidanit.jobhunter.domain.response.ResUpdateUserDTO;
+import com.hoidanit.jobhunter.domain.response.ResUserDTO;
+import com.hoidanit.jobhunter.domain.response.ResultPaginationDTO;
+import com.hoidanit.jobhunter.domain.response.UserCreateDTO;
+import com.hoidanit.jobhunter.domain.response.ResultPaginationDTO.MetaDTO;
 import com.hoidanit.jobhunter.repository.UserRepository;
 
 @Service

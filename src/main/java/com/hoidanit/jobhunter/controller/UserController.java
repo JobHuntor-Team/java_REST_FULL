@@ -3,10 +3,10 @@ package com.hoidanit.jobhunter.controller;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hoidanit.jobhunter.domain.User;
-import com.hoidanit.jobhunter.domain.dto.ResUpdateUserDTO;
-import com.hoidanit.jobhunter.domain.dto.ResUserDTO;
-import com.hoidanit.jobhunter.domain.dto.ResultPaginationDTO;
-import com.hoidanit.jobhunter.domain.dto.UserCreateDTO;
+import com.hoidanit.jobhunter.domain.response.ResUpdateUserDTO;
+import com.hoidanit.jobhunter.domain.response.ResUserDTO;
+import com.hoidanit.jobhunter.domain.response.ResultPaginationDTO;
+import com.hoidanit.jobhunter.domain.response.UserCreateDTO;
 import com.hoidanit.jobhunter.service.UserService;
 import com.hoidanit.jobhunter.util.annotation.ApiMessage;
 import com.hoidanit.jobhunter.util.error.IdInvalidException;

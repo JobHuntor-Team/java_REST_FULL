@@ -11,8 +11,8 @@ import org.springframework.data.jpa.repository.query.Meta;
 import org.springframework.stereotype.Service;
 
 import com.hoidanit.jobhunter.domain.Company;
-import com.hoidanit.jobhunter.domain.dto.MetaDTO;
-import com.hoidanit.jobhunter.domain.dto.ResultPaginationDTO;
+import com.hoidanit.jobhunter.domain.response.ResultPaginationDTO;
+import com.hoidanit.jobhunter.domain.response.ResultPaginationDTO.MetaDTO;
 import com.hoidanit.jobhunter.repository.CompanyRepository;
 
 @Service

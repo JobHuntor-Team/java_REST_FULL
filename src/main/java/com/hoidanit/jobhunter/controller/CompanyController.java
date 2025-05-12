@@ -3,7 +3,7 @@ package com.hoidanit.jobhunter.controller;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hoidanit.jobhunter.domain.Company;
-import com.hoidanit.jobhunter.domain.dto.ResultPaginationDTO;
+import com.hoidanit.jobhunter.domain.response.ResultPaginationDTO;
 import com.hoidanit.jobhunter.service.CompanyService;
 import com.turkraft.springfilter.boot.Filter;
 
