@@ -58,4 +58,9 @@ public class CompanyService {
             throw new RuntimeException("Company not found with id: " + company.getId());
         }
     }
+
+    public Company getCompanyById(Long companyId) {
+        return this.companyRepository.findById(companyId)
+                .orElseThrow(() -> new RuntimeException("Company not found with id: " + companyId));
+    }
 }

@@ -2,6 +2,7 @@ package com.hoidanit.jobhunter.domain.response;
 
 import java.time.Instant;
 
+import com.hoidanit.jobhunter.domain.response.UserCreateDTO.UserCompany;
 import com.hoidanit.jobhunter.util.constent.GenderEnum;
 
 import lombok.Getter;
@@ -16,5 +17,6 @@ public class ResUpdateUserDTO {
     private String address;
     private int age;
     private Instant updatedAt;
+    private UserCompany company;
 
 }

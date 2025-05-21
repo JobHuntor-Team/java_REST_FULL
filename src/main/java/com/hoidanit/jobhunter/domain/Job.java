@@ -1,9 +1,9 @@
 package com.hoidanit.jobhunter.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.hoidanit.jobhunter.util.SecurityUtil;
-import com.hoidanit.jobhunter.util.constent.GenderEnum;
+import com.hoidanit.jobhunter.util.constent.LevelEnum;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,30 +12,29 @@ import java.time.Instant;
 import java.util.List;
 
 @Entity
-@Table(name = "users")
+@Table(name = "jobs")
 @Getter
 @Setter
-public class User {
-
+public class Job {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
     private String name;
-    @JsonProperty("password")
-    private String password;
-    private String email;
-    private int age;
-    private String address;
+    private String location;
+    private double salary;
+    private int quantity;
+
     @Enumerated(EnumType.STRING)
-    private GenderEnum gender;
-    @JoinColumn(columnDefinition = "MEDIUMTEXT")
-    private String refreshToken;
+    private LevelEnum level;
 
-    // @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
+    @Column(columnDefinition = "MEDIUMTEXT")
+    private String description;
+
+    private Instant startDate;
+    private Instant endDate;
+    private boolean active;
     private Instant createdAt;
-
-    // @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
     private Instant updatedAt;
     private String createdBy;
     private String updatedBy;
@@ -44,10 +43,14 @@ public class User {
     @JoinColumn(name = "company_id")
     private Company company;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JsonIgnoreProperties({ "jobs" })
+    @JoinTable(name = "job_skill", joinColumns = @JoinColumn(name = "job_id"), inverseJoinColumns = @JoinColumn(name = "skill_id"))
+    private List<Skill> skills;
+
+    @OneToMany(mappedBy = "job", fetch = FetchType.LAZY)
     @JsonIgnore
     List<Resume> resumes;
-
 
     @PrePersist
     public void createBeforePersist() {
@@ -56,6 +59,7 @@ public class User {
                 : "";
         this.createdAt = Instant.now();
     }
+
 
     @PreUpdate
     public void updateBeforePersist() {

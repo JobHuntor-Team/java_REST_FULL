@@ -17,5 +17,13 @@ public class UserCreateDTO {
     private String address;
     private int age;
     private Instant createdAt;
+    private UserCompany company;
+
+    @Getter
+    @Setter
+    public static class UserCompany {
+        private long id;
+        private String name;
+    }
 
 }

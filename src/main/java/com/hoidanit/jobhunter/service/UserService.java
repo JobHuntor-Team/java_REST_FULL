@@ -7,31 +7,35 @@ import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
+import com.hoidanit.jobhunter.domain.Company;
 import com.hoidanit.jobhunter.domain.User;
 import com.hoidanit.jobhunter.domain.response.ResUpdateUserDTO;
 import com.hoidanit.jobhunter.domain.response.ResUserDTO;
 import com.hoidanit.jobhunter.domain.response.ResultPaginationDTO;
 import com.hoidanit.jobhunter.domain.response.UserCreateDTO;
 import com.hoidanit.jobhunter.domain.response.ResultPaginationDTO.MetaDTO;
+import com.hoidanit.jobhunter.domain.response.UserCreateDTO.UserCompany;
 import com.hoidanit.jobhunter.repository.UserRepository;
 
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
+    private final CompanyService companyService;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, CompanyService companyService, PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+        this.companyService = companyService;
         this.userRepository = userRepository;
     }
 
     public UserCreateDTO createNewUser(User user) {
-        if (this.userRepository.existsByEmail(user.getEmail())) {
-            throw new IllegalArgumentException("Email đã tồn tại trong hệ thống");
-        }
-        this.userRepository.save(user);
+        User newUser = this.handleCreateUser(user);
         UserCreateDTO userCreateDTO = new UserCreateDTO();
         userCreateDTO.setId(user.getId());
         userCreateDTO.setEmail(user.getEmail());
@@ -40,6 +44,10 @@ public class UserService {
         userCreateDTO.setAddress(user.getAddress());
         userCreateDTO.setAge(user.getAge());
         userCreateDTO.setCreatedAt(user.getCreatedAt());
+        UserCreateDTO.UserCompany userCompany = new UserCreateDTO.UserCompany();
+        userCompany.setId(user.getCompany().getId());
+        userCompany.setName(user.getCompany().getName());
+        userCreateDTO.setCompany(userCompany);
         return userCreateDTO;
 
     }
@@ -52,11 +60,7 @@ public class UserService {
     }
 
     public ResUserDTO getUser(Long id) {
-        Optional<User> user = this.userRepository.findById(id);
-        if (user.isEmpty()) {
-            throw new IllegalArgumentException("Không tìm thấy người dùng với id: " + id);
-        }
-        User userEntity = user.get();
+        User userEntity = this.handleGetUserById(id);
         ResUserDTO userDTO = new ResUserDTO();
         userDTO.setId(userEntity.getId());
         userDTO.setEmail(userEntity.getEmail());
@@ -66,7 +70,23 @@ public class UserService {
         userDTO.setAge(userEntity.getAge());
         userDTO.setCreatedAt(userEntity.getCreatedAt());
         userDTO.setUpdatedAt(userEntity.getUpdatedAt());
+        if (userEntity.getCompany() != null) {
+            ResUserDTO.CompanyUser userCompany = new ResUserDTO.CompanyUser();
+            userCompany.setId(userEntity.getCompany().getId());
+            userCompany.setName(userEntity.getCompany().getName());
+            userDTO.setCompany(userCompany);
+        } else {
+            userDTO.setCompany(null);
+        }
         return userDTO;
+    }
+
+    private User handleGetUserById(Long id) {
+        Optional<User> user = this.userRepository.findById(id);
+        if (user.isEmpty()) {
+            throw new IllegalArgumentException("Không tìm thấy người dùng với id: " + id);
+        }
+        return user.get();
     }
 
     public ResultPaginationDTO fetchAllUser(Specification<User> spec, Pageable pageable) {
@@ -90,7 +110,10 @@ public class UserService {
                         item.getAddress(),
                         item.getAge(),
                         item.getUpdatedAt(),
-                        item.getCreatedAt()))
+                        item.getCreatedAt(),
+                        new ResUserDTO.CompanyUser(
+                                item.getCompany() != null ? item.getCompany().getId() : 0,
+                                item.getCompany() != null ? item.getCompany().getName() : null)))
                 .collect(Collectors.toList());
 
         rs.setResult(listUser);
@@ -102,7 +125,28 @@ public class UserService {
         return this.userRepository.findByEmail(username);
     }
 
-    public ResUpdateUserDTO handleUpdateUser(User updateUser) {
+    public ResUpdateUserDTO updateUser(User user) {
+        User updateUser = this.handleUpdateUser(user);
+
+        ResUpdateUserDTO resUpdateUserDTO = new ResUpdateUserDTO();
+        resUpdateUserDTO.setId(updateUser.getId());
+        resUpdateUserDTO.setName(updateUser.getName());
+        resUpdateUserDTO.setGender(updateUser.getGender());
+        resUpdateUserDTO.setAddress(updateUser.getAddress());
+        resUpdateUserDTO.setAge(updateUser.getAge());
+        resUpdateUserDTO.setUpdatedAt(updateUser.getUpdatedAt());
+        if (updateUser.getCompany() != null) {
+            UserCompany userCompany = new UserCompany();
+            userCompany.setId(updateUser.getCompany().getId());
+            userCompany.setName(updateUser.getCompany().getName());
+            resUpdateUserDTO.setCompany(userCompany);
+        } else {
+            resUpdateUserDTO.setCompany(null);
+        }
+        return resUpdateUserDTO;
+    }
+
+    private User handleUpdateUser(User updateUser) {
         Optional<User> userOptional = this.userRepository.findById(updateUser.getId());
         if (userOptional.isEmpty()) {
             throw new IllegalArgumentException("Không tìm thấy người dùng với id: " + updateUser.getId());
@@ -114,16 +158,16 @@ public class UserService {
         user.setAddress(updateUser.getAddress());
         user.setAge(updateUser.getAge());
         user.setUpdatedAt(updateUser.getUpdatedAt());
+        if (updateUser.getCompany() != null) {
+            Company company = this.companyService.getCompanyById(updateUser.getCompany().getId());
+            if (company != null) {
+                user.setCompany(company);
+            } else {
+                user.setCompany(null);
+            }
+        }
         this.userRepository.save(user);
-
-        ResUpdateUserDTO resUpdateUserDTO = new ResUpdateUserDTO();
-        resUpdateUserDTO.setId(user.getId());
-        resUpdateUserDTO.setName(user.getName());
-        resUpdateUserDTO.setGender(user.getGender());
-        resUpdateUserDTO.setAddress(user.getAddress());
-        resUpdateUserDTO.setAge(user.getAge());
-        resUpdateUserDTO.setUpdatedAt(user.getUpdatedAt());
-        return resUpdateUserDTO;
+        return user;
     }
 
     public void handleUpdateRefreshToken(String refreshToken, String email) {
@@ -138,5 +182,20 @@ public class UserService {
 
     public User getUserByRefreshTokenAndEmail(String refreshToken, String email) {
         return this.userRepository.findByRefreshTokenAndEmail(refreshToken, email);
+    }
+
+    private User handleCreateUser(User user) {
+        if (this.userRepository.existsByEmail(user.getEmail())) {
+            throw new IllegalArgumentException("Email đã tồn tại trong hệ thống");
+        }
+        String encodedPassword = this.passwordEncoder.encode(user.getPassword());
+        user.setPassword(encodedPassword);
+        Company company = this.companyService.getCompanyById(user.getCompany().getId());
+        if (company != null) {
+            user.setCompany(company);
+        } else {
+            user.setCompany(null);
+        }
+        return this.userRepository.save(user);
     }
 }

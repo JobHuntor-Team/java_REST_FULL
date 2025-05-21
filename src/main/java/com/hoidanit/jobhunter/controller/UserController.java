@@ -2,14 +2,15 @@ package com.hoidanit.jobhunter.controller;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import com.hoidanit.jobhunter.domain.Company;
 import com.hoidanit.jobhunter.domain.User;
 import com.hoidanit.jobhunter.domain.response.ResUpdateUserDTO;
 import com.hoidanit.jobhunter.domain.response.ResUserDTO;
 import com.hoidanit.jobhunter.domain.response.ResultPaginationDTO;
 import com.hoidanit.jobhunter.domain.response.UserCreateDTO;
+import com.hoidanit.jobhunter.service.CompanyService;
 import com.hoidanit.jobhunter.service.UserService;
 import com.hoidanit.jobhunter.util.annotation.ApiMessage;
-import com.hoidanit.jobhunter.util.error.IdInvalidException;
 import com.turkraft.springfilter.boot.Filter;
 
 import org.springframework.data.domain.Pageable;
@@ -31,15 +32,21 @@ public class UserController {
 
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
+    private final CompanyService companyService;
 
-    public UserController(UserService userService, PasswordEncoder passwordEncoder) {
+    public UserController(UserService userService, PasswordEncoder passwordEncoder,
+            CompanyService companyService) {
         this.passwordEncoder = passwordEncoder;
         this.userService = userService;
+        this.companyService = companyService;
     }
 
     @PostMapping("/users")
     public ResponseEntity<UserCreateDTO> createNewUser(@RequestBody User postManUser) {
-        postManUser.setPassword(this.passwordEncoder.encode(postManUser.getPassword()));
+        if (postManUser.getPassword() == null
+                || postManUser.getPassword().isBlank()) {
+            throw new IllegalArgumentException("Password is required");
+        }
         UserCreateDTO newUser = this.userService.createNewUser(postManUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
     }
@@ -67,7 +74,7 @@ public class UserController {
     @PutMapping("/users/{id}")
     public ResponseEntity<ResUpdateUserDTO> putUserById(@PathVariable("id") long id,
             @RequestBody User updateUser) {
-        ResUpdateUserDTO resUpdateUserDTO = this.userService.handleUpdateUser(updateUser);
+        ResUpdateUserDTO resUpdateUserDTO = this.userService.updateUser(updateUser);
         return ResponseEntity.ok().body(resUpdateUserDTO);
     }
 }

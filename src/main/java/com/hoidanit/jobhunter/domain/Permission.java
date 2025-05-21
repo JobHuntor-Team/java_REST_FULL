@@ -2,74 +2,66 @@ package com.hoidanit.jobhunter.domain;
 
 import java.time.Instant;
 import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.hoidanit.jobhunter.util.SecurityUtil;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
+import com.hoidanit.jobhunter.util.SecurityUtil;
 
 @Entity
-@Table(name = "companies")
+@Table(name = "permissions")
 @Getter
 @Setter
-public class Company {
+public class Permission {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @NotBlank(message = "Name is required")
+    @NotBlank(message = "name không được để trống")
     private String name;
 
-    @JoinColumn(columnDefinition = "MEDIUMTEXT")
-    private String description;
+    @NotBlank(message = "apiPath không được để trống")
+    private String apiPath;
 
-    private String address;
+    @NotBlank(message = "method không được để trống")
+    private String method;
 
-    private String logo;
+    @NotBlank(message = "module không được để trống")
+    private String module;
 
-    // @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
     private Instant createdAt;
-    // @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
     private Instant updatedAt;
-
     private String createdBy;
-
     private String updatedBy;
 
-    @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "permissions")
     @JsonIgnore
-    List<User> users;
-
-    @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
-    @JsonIgnore
-    List<Job> jobs;
+    private List<Role> roles;
 
     @PrePersist
-    public void createBeforePersist() {
+    public void handleBeforeCreate() {
         this.createdBy = SecurityUtil.getCurrentUserLogin().isPresent() == true
                 ? SecurityUtil.getCurrentUserLogin().get()
                 : "";
+
         this.createdAt = Instant.now();
     }
 
     @PreUpdate
-    public void updateBeforePersist() {
+    public void handleBeforeUpdate() {
         this.updatedBy = SecurityUtil.getCurrentUserLogin().isPresent() == true
                 ? SecurityUtil.getCurrentUserLogin().get()
                 : "";
+
         this.updatedAt = Instant.now();
     }
 }
