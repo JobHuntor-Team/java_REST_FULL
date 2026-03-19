@@ -43,10 +43,10 @@ public class PermissionInterceptor implements HandlerInterceptor {
                 Role role = user.getRole();
                 if(role != null) {
                     List<Permission> permissions = role.getPermissions();
-                    Boolean isAllowed = permissions.stream()
-                            .anyMatch(permission ->
-                                    permission.getApiPath().equals(requestURI)
-                                            && permission.getMethod().equalsIgnoreCase(httpMethod));
+                    String regex = requestURI.replace("{id}", "\\d+");
+
+                    boolean isAllowed = permissions.stream().anyMatch(item -> item.getApiPath().equals(path)
+                            && item.getMethod().equals(httpMethod));
                     if (isAllowed == false) {
                         throw new IllegalArgumentException("bạn không có quyền truy cập vào API này");
                     }
