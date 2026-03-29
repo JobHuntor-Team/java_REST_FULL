@@ -28,7 +28,7 @@ public class GlobalException {
             Exception ex) {
         RestResponse<Object> res = new RestResponse<>();
         res.setStatusCode(HttpStatus.BAD_REQUEST.value());
-        res.setMessage("CAll API error");
+        res.setMessage("Call API error");
         res.setError(ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
     }
@@ -52,7 +52,7 @@ public class GlobalException {
     public ResponseEntity<RestResponse<Object>> handleIllegalArgumentException(IllegalArgumentException ex) {
         RestResponse<Object> res = new RestResponse<>();
         res.setStatusCode(HttpStatus.BAD_REQUEST.value());
-        res.setMessage("CAll API error");
+        res.setMessage("Call API error");
         res.setError(ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
     }
@@ -77,6 +77,18 @@ public class GlobalException {
         RestResponse<Object> res = new RestResponse<>();
         res.setStatusCode(HttpStatus.BAD_REQUEST.value());
         res.setMessage("Upload file error");
+        res.setError(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
+    }
+
+    // ĐOẠN CODE MỚI THÊM ĐỂ BẮT LỖI TRÙNG EMAIL
+    @ExceptionHandler(value = {
+            IdInvalidException.class
+    })
+    public ResponseEntity<RestResponse<Object>> handleIdException(IdInvalidException ex) {
+        RestResponse<Object> res = new RestResponse<>();
+        res.setStatusCode(HttpStatus.BAD_REQUEST.value());
+        res.setMessage("Call API error");
         res.setError(ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
     }

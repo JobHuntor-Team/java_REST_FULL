@@ -30,25 +30,36 @@ public class FormatRestResponse implements ResponseBodyAdvice<Object> {
             Class selectedConverterType,
             ServerHttpRequest request,
             ServerHttpResponse response) {
+
         HttpServletResponse servletResponse = ((ServletServerHttpResponse) response).getServletResponse();
         int status = servletResponse.getStatus();
+
+        // 1. Trả về trực tiếp nếu là lỗi hoặc body là kiểu String/Resource
+        if (status >= 400 || body instanceof String || body instanceof Resource) {
+            return body;
+        }
+
+        // 2. Xử lý lỗi ép kiểu khi method khai báo trả về String/Resource nhưng giá trị thực tế lại bị null
+        if (String.class.equals(returnType.getParameterType()) ||
+                Resource.class.isAssignableFrom(returnType.getParameterType())) {
+            return body;
+        }
+
+        // 3. Tránh trường hợp Response bị bọc 2 lần
+        if (body instanceof RestResponse) {
+            return body;
+        }
+
+        // 4. Các trường hợp Success khác: Khởi tạo response chuẩn
         RestResponse<Object> res = new RestResponse<>();
         res.setStatusCode(status);
 
-        if (body instanceof String ||  body instanceof Resource) {
-            return body;
-        }
+        ApiMessage apiMessage = returnType.getMethodAnnotation(ApiMessage.class);
+        res.setMessage(apiMessage != null ? apiMessage.value() : "call api success");
 
-        if (status >= 400) {
-            // error
-            return body;
-        } else {
-            // Success response
-            ApiMessage apiMessage = returnType.getMethodAnnotation(ApiMessage.class);
-            res.setMessage(apiMessage != null ? apiMessage.value() : "call api success");
-            res.setData(body);
-        }
+        // Set data (cho phép body null đối với các endpoint trả về void hoặc empty)
+        res.setData(body);
+
         return res;
     }
-
 }

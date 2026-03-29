@@ -1,13 +1,8 @@
 package com.job.jobhunter.domain.resquest;
 
-import jakarta.validation.constraints.NotBlank;
 
 public class ReqLoginDTO {
-
-    @NotBlank(message = "Username is required")
     private String username;
-
-    @NotBlank(message = "Password is required")
     private String password;
 
     public String getUsername() {
@@ -25,5 +20,4 @@ public class ReqLoginDTO {
     public void setPassword(String password) {
         this.password = password;
     }
-
 }

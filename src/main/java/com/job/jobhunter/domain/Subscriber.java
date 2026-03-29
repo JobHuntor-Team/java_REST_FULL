@@ -1,6 +1,7 @@
 package com.job.jobhunter.domain;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -39,7 +40,7 @@ public class Subscriber {
     @ManyToMany(fetch = FetchType.LAZY)
     @JsonIgnoreProperties(value = { "subscribers" })
     @JoinTable(name = "subscriber_skill", joinColumns = @JoinColumn(name = "subscriber_id"), inverseJoinColumns = @JoinColumn(name = "skill_id"))
-    private List<Skill> skills;
+    private List<Skill> skills = new ArrayList<>(); // <-- Đã thêm "= new ArrayList<>()" ở đây
 
     private Instant createdAt;
     private Instant updatedAt;

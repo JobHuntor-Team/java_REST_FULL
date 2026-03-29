@@ -2,6 +2,7 @@ package com.job.jobhunter.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.job.jobhunter.util.SecurityUtil;
 import com.job.jobhunter.util.constent.LevelEnum;
 import jakarta.persistence.*;
@@ -31,11 +32,20 @@ public class Job {
     @Column(columnDefinition = "MEDIUMTEXT")
     private String description;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
     private Instant startDate;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
     private Instant endDate;
+
     private boolean active;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
     private Instant createdAt;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
     private Instant updatedAt;
+
     private String createdBy;
     private String updatedBy;
 
@@ -59,7 +69,6 @@ public class Job {
                 : "";
         this.createdAt = Instant.now();
     }
-
 
     @PreUpdate
     public void updateBeforePersist() {
