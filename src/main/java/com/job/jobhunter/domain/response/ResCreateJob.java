@@ -33,3 +33,4 @@ public class ResCreateJob {
     private List<String> skillIds;
 
 }
+//test
