@@ -2,39 +2,63 @@ package com.job.jobhunter.controller;
 
 import com.job.jobhunter.domain.Message;
 import com.job.jobhunter.service.MessageService;
+import com.job.jobhunter.util.annotation.ApiMessage;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-// MỚI THÊM 3 DÒNG IMPORT NÀY:
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 @RestController
-// LƯU Ý: @RequestMapping("/api/v1") chỉ áp dụng cho API HTTP (GET/POST/PUT/DELETE), KHÔNG áp dụng cho @MessageMapping
 @RequestMapping("/api/v1")
 public class MessageController {
 
     private final MessageService messageService;
-    private final SimpMessagingTemplate messagingTemplate; // MỚI THÊM: Công cụ để đẩy tin nhắn realtime
+    private final SimpMessagingTemplate messagingTemplate;
 
-    // MỚI THÊM: Cập nhật lại Constructor
     public MessageController(MessageService messageService, SimpMessagingTemplate messagingTemplate) {
         this.messageService = messageService;
         this.messagingTemplate = messagingTemplate;
     }
 
-    // ... (Giữ nguyên các hàm @PostMapping, @GetMapping, @DeleteMapping cũ của bạn) ...
+    // 1. LẤY TOÀN BỘ TIN NHẮN CỦA CONVERSATION (SCRUM-9)
+    // URL Postman: GET {{BASE_URL}}/api/v1/conversations/2/messages
+    @GetMapping("/conversations/{id}/messages")
+    @ApiMessage("Fetch all messages for a specific conversation")
+    public ResponseEntity<Page<Message>> getMessagesByConversation(
+            @PathVariable("id") long conversationId,
+            Pageable pageable) {
 
-    // MỚI THÊM: HÀM XỬ LÝ CHAT WEBSOCKET
+        // Trả về toàn bộ trang dữ liệu từ Service
+        Page<Message> allMessages = this.messageService.getMessagesByConversation(conversationId, pageable);
+        return ResponseEntity.ok(allMessages);
+    }
+
+    // 2. TẠO TIN NHẮN (POST /api/v1/messages)
+    @PostMapping("/messages")
+    @ApiMessage("Create a new message")
+    public ResponseEntity<Message> createNewMessage(@RequestBody Message msg) {
+        Message savedMessage = this.messageService.createMessage(msg);
+        this.messagingTemplate.convertAndSend("/topic/public", savedMessage);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedMessage);
+    }
+
+    // 3. XÓA TIN NHẮN (DELETE /api/v1/messages/1)
+    @DeleteMapping("/messages/{id}")
+    @ApiMessage("Delete a message")
+    public ResponseEntity<Void> deleteMessage(@PathVariable("id") long id) {
+        this.messageService.deleteMessage(id);
+        return ResponseEntity.ok(null);
+    }
+
+    // 4. WEBSOCKET CHAT (SCRUM-8)
     @MessageMapping("/chat.send")
     public void sendMessageRealtime(@Payload Message message) {
-        // 1. Lưu tin nhắn vào Database (Tùy chọn, giống như hàm POST của bạn)
         Message savedMessage = this.messageService.createMessage(message);
-
-        // 2. Phát tin nhắn này ra cho tất cả những ai đang lắng nghe kênh "/topic/public"
         this.messagingTemplate.convertAndSend("/topic/public", savedMessage);
     }
 }
+//test

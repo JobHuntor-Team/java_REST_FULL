@@ -11,3 +11,4 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
 
     Page<Message> findByConversationId(long conversationId, Pageable pageable);
 }
+//test
