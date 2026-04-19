@@ -1,5 +1,6 @@
 package com.job.jobhunter.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.job.jobhunter.domain.User;
@@ -41,7 +42,7 @@ public class UserController {
     }
 
     @PostMapping("/users")
-    public ResponseEntity<UserCreateDTO> createNewUser(@RequestBody User postManUser) {
+    public ResponseEntity<UserCreateDTO> createNewUser(@Valid @RequestBody User postManUser) {
         if (postManUser.getPassword() == null
                 || postManUser.getPassword().isBlank()) {
             throw new IllegalArgumentException("Password is required");

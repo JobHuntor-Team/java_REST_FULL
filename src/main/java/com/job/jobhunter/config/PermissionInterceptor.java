@@ -43,7 +43,6 @@ public class PermissionInterceptor implements HandlerInterceptor {
                 Role role = user.getRole();
                 if(role != null) {
                     List<Permission> permissions = role.getPermissions();
-                    String regex = requestURI.replace("{id}", "\\d+");
 
                     boolean isAllowed = permissions.stream().anyMatch(item -> item.getApiPath().equals(path)
                             && item.getMethod().equals(httpMethod));
